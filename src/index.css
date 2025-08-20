@@ -1,68 +1,258 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+/* AI-Powered Deepfake Detection Platform Design System */
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+html {
+  scroll-behavior: smooth;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-}
-
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
+@layer base {
   :root {
-    color: #213547;
-    background-color: #ffffff;
+    /* Core AI Theme Colors */
+    --background: 220 27% 98%;
+    --foreground: 230 15% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 230 15% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 230 15% 15%;
+
+    /* Primary: Deep Tech Blue */
+    --primary: 230 75% 56%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 230 85% 65%;
+
+    /* Secondary: Neural Purple */
+    --secondary: 270 60% 45%;
+    --secondary-foreground: 0 0% 100%;
+
+    /* Accent: Electric Cyan */
+    /* --accent: 190 95% 55%;
+    --accent-foreground: 230 15% 15%; */
+
+    --accent: 270 70% 75%;           /* Soft lavender-violet */
+    --accent-foreground: 270 20% 20%; /* Deep muted violet for contrast */
+
+
+    /* Muted: Soft Tech Gray */
+    --muted: 220 15% 96%;
+    --muted-foreground: 230 10% 45%;
+
+    /* Status Colors */
+    --success: 120 70% 50%;
+    --success-foreground: 0 0% 100%;
+    --warning: 40 95% 55%;
+    --warning-foreground: 0 0% 100%;
+    --destructive: 0 75% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 15% 88%;
+    --input: 220 15% 96%;
+    --ring: 230 75% 56%;
+
+    /* AI-Themed Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(230 75% 56%), hsl(270 60% 45%));
+    --gradient-neural: linear-gradient(90deg, hsl(230 75% 56%), hsl(190 95% 55%), hsl(270 60% 45%));
+    --gradient-glass: linear-gradient(135deg, hsla(230 75% 56% / 0.1), hsla(270 60% 45% / 0.1));
+    --gradient-hero: linear-gradient(180deg, hsl(220 27% 98%), hsl(230 85% 98%));
+
+    /* Shadows with AI Glow */
+    --shadow-glow: 0 0 40px hsl(230 75% 56% / 0.15);
+    --shadow-neural: 0 20px 60px -10px hsl(230 75% 56% / 0.2);
+    --shadow-card: 0 4px 20px -4px hsl(230 15% 15% / 0.1);
+
+    /* Animation Variables */
+    --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
   }
-  a:hover {
-    color: #747bff;
+
+  .dark {
+    /* Dark AI Theme */
+    --background: 230 25% 8%;
+    --foreground: 220 15% 95%;
+
+    --card: 230 20% 12%;
+    --card-foreground: 220 15% 95%;
+
+    --popover: 230 20% 12%;
+    --popover-foreground: 220 15% 95%;
+
+    /* Primary: Bright Tech Blue */
+    --primary: 230 85% 65%;
+    --primary-foreground: 230 25% 8%;
+    --primary-glow: 230 95% 75%;
+
+    /* Secondary: Vivid Purple */
+    --secondary: 270 70% 55%;
+    --secondary-foreground: 230 25% 8%;
+
+    --accent: 270 95% 72%;
+    --accent-foreground: 270 30% 98%;
+
+
+    /* Muted: Dark Tech Gray */
+    --muted: 230 15% 20%;
+    --muted-foreground: 220 10% 65%;
+
+    /* Status Colors for Dark */
+    --success: 120 80% 60%;
+    --success-foreground: 230 25% 8%;
+    --warning: 40 100% 65%;
+    --warning-foreground: 230 25% 8%;
+    --destructive: 0 85% 65%;
+    --destructive-foreground: 230 25% 8%;
+
+    --border: 230 15% 25%;
+    --input: 230 15% 20%;
+    --ring: 230 85% 65%;
+
+    /* Dark Mode Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(230 85% 65%), hsl(270 70% 55%));
+    --gradient-neural: linear-gradient(90deg, hsl(230 85% 65%), hsl(190 95% 65%), hsl(270 70% 55%));
+    --gradient-glass: linear-gradient(135deg, hsla(230 85% 65% / 0.15), hsla(270 70% 55% / 0.15));
+    --gradient-hero: linear-gradient(180deg, hsl(230 25% 8%), hsl(230 30% 12%));
+
+    /* Enhanced Dark Shadows */
+    --shadow-glow: 0 0 60px hsl(230 85% 65% / 0.3);
+    --shadow-neural: 0 20px 80px -10px hsl(230 85% 65% / 0.4);
+    --shadow-card: 0 8px 30px -8px hsl(230 85% 65% / 0.2);
+
+    --sidebar-background: 230 20% 12%;
+    --sidebar-foreground: 220 15% 85%;
+    --sidebar-primary: 230 85% 65%;
+    --sidebar-primary-foreground: 230 25% 8%;
+    --sidebar-accent: 230 15% 20%;
+    --sidebar-accent-foreground: 220 15% 85%;
+    --sidebar-border: 230 15% 25%;
+    --sidebar-ring: 230 85% 65%;
   }
-  button {
-    background-color: #f9f9f9;
+}
+
+/* AI Platform Animation Utilities */
+@layer utilities {
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  .animate-glow {
+    animation: glow 2s ease-in-out infinite alternate;
+  }
+  
+  .animate-neural {
+    animation: neural-pulse 3s ease-in-out infinite;
+  }
+  
+  .animate-slide-up {
+    animation: slide-up 0.6s ease-out;
+  }
+  
+  .animate-fade-in-up {
+    animation: fade-in-up 0.8s ease-out;
+  }
+  
+  /* .hover-lift {
+    transition: var(--transition-smooth);
+  }
+  
+  .hover-lift:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-neural);
+  } */
+  
+  .glass-effect {
+    background: var(--gradient-glass);
+    backdrop-filter: blur(10px);
+    border: 1px solid hsl(var(--border) / 0.5);
+  }
+  
+  .neural-gradient {
+    background: var(--gradient-neural);
+    background-size: 200% 200%;
+    animation: neural-shift 8s ease infinite;
+  }
+  
+  .hero-gradient {
+    background: var(--gradient-hero);
+  }
+  
+  .primary-gradient {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+}
+
+/* Keyframe Animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+
+@keyframes glow {
+  from { box-shadow: 0 0 20px hsl(var(--primary) / 0.3); }
+  to { box-shadow: var(--shadow-glow); }
+}
+
+@keyframes neural-pulse {
+  0%, 100% { opacity: 0.8; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes neural-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
   }
 }

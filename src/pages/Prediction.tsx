@@ -26,91 +26,137 @@ const Prediction = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  const handleFileUpload = async (file: File) => {
-    if (!file.type.includes('video')) {
-      toast({
-        title: "Invalid File Type",
-        description: "Please upload a video file (MP4, WebM, AVI, MOV).",
-        variant: "destructive"
-      });
-      return;
-    }
+  const predictionApiCall = async (file: File) => {
+    const start = new Date();
+    console.log("predicting......");
+    
+    setStage('uploading');
+    setProgress(0);
 
-    if (!user) {
-      toast({
-        title: "Authentication Required",
-        description: "Please log in to upload videos.",
-        variant: "destructive"
-      });
-      return;
-    }
+    const fd = new FormData();
+    fd.append('video', file);
 
-    try {
-      setStage('uploading');
-      setProgress(0);
-
-      // Get signed upload credentials
-      const savedUser: User = JSON.parse(localStorage.getItem('user') || '{}');
-      const resp = await axios.get('http://localhost:8082/api/v1/upload/get-sign', {
-        headers: {
-          'Content-Type': "application/json",
-          'Authorization': `Bearer ${savedUser.jwtToken}`
+    const { data } = await axios.post(
+      `${import.meta.env.VITE_DEEPFAKE_API_URL}`,
+      fd,
+      {
+        onUploadProgress: e => {
+          const progressPercent = Math.round((e.loaded * 100) / (e.total || 1));
+          setProgress(progressPercent);
         }
-      });
+      }
+    );
 
-      // Upload to Cloudinary
-      const fd = new FormData();
-      fd.append('file', file);
-      fd.append('resource_type', 'video');
-      fd.append('api_key', resp.data.api_key);
-      fd.append('timestamp', resp.data.timestamp);
-      fd.append('signature', resp.data.signature);
-      fd.append('public_id', resp.data.public_id);
-      fd.append('folder', resp.data.folder);
+    setStage('uploaded');
+    toast({
+      title: "Upload Successful!",
+      description: "Prediction complete — redirecting...",
+    });
 
-      const { data } = await axios.post(
-        `https://api.cloudinary.com/v1_1/${resp.data.cloud_name}/video/upload`,
-        fd,
-        {
-          onUploadProgress: e => {
-            const progressPercent = Math.round((e.loaded * 100) / (e.total || 1));
-            setProgress(progressPercent);
-          }
-        }
-      );
-
-      // TODO: With uploaded result call classification api
-
-      setUploadedUrl(data.secure_url);
-      setStage('uploaded');
-
-      toast({
-        title: "Upload Successful!",
-        description: "Video uploaded successfully. Redirecting to history...",
-      });
-
-      sendClassifyEvent(data.secure_url, data.bytes, data.original_filename, data.format, data.duration);
-      
-      setTimeout(() => {
-        navigate('/history');
-      }, 3000);
-
-    } catch (error) {
-      console.error('Upload failed:', error);
-      toast({
-        title: "Upload Failed",
-        description: "Failed to upload video. Please try again.",
-        variant: "destructive"
-      });
-      setStage('upload');
-      setProgress(0);
-    }
+    const result = {
+      id: parseInt('1'),
+      userId: parseInt("101"),
+      startDate: start,
+      endDate: new Date(),
+      result: data.predicted_class,
+      status: 'completed',
+      videoUrl: file,
+      requestId: `req_${Date.now()}`,
+      confidence: data.confidence,
+      outputVideoUrl: data.output_url,
+      processingTime: data.execution_time
+    };
+    // Navigate to the result page, passing prediction data
+    navigate("/prediction-result", { state: { prediction: result } });
   };
+
+  const handleFileUpload = async (file: File) => {
+    await predictionApiCall(file);
+  }
+
+  // const handleFileUpload = async (file: File) => {
+  //   if (!file.type.includes('video')) {
+  //     toast({
+  //       title: "Invalid File Type",
+  //       description: "Please upload a video file (MP4, WebM, AVI, MOV).",
+  //       variant: "destructive"
+  //     });
+  //     return;
+  //   }
+
+  //   if (!user) {
+  //     toast({
+  //       title: "Authentication Required",
+  //       description: "Please log in to upload videos.",
+  //       variant: "destructive"
+  //     });
+  //     return;
+  //   }
+
+  //   try {
+  //     setStage('uploading');
+  //     setProgress(0);
+
+  //     // Get signed upload credentials
+  //     const savedUser: User = JSON.parse(localStorage.getItem('user') || '{}');
+  //     const resp = await axios.get('http://localhost:8082/api/v1/upload/get-sign', {
+  //       headers: {
+  //         'Content-Type': "application/json",
+  //         'Authorization': `Bearer ${savedUser.jwtToken}`
+  //       }
+  //     });
+
+  //     // Upload to Cloudinary
+  //     const fd = new FormData();
+  //     fd.append('file', file);
+  //     fd.append('resource_type', 'video');
+  //     fd.append('api_key', resp.data.api_key);
+  //     fd.append('timestamp', resp.data.timestamp);
+  //     fd.append('signature', resp.data.signature);
+  //     fd.append('public_id', resp.data.public_id);
+  //     fd.append('folder', resp.data.folder);
+
+  //     const { data } = await axios.post(
+  //       `https://api.cloudinary.com/v1_1/${resp.data.cloud_name}/video/upload`,
+  //       fd,
+  //       {
+  //         onUploadProgress: e => {
+  //           const progressPercent = Math.round((e.loaded * 100) / (e.total || 1));
+  //           setProgress(progressPercent);
+  //         }
+  //       }
+  //     );
+
+  //     setUploadedUrl(data.secure_url);
+  //     setStage('uploaded');
+
+  //     toast({
+  //       title: "Upload Successful!",
+  //       description: "Video uploaded successfully. Redirecting to history...",
+  //     });
+
+  //     sendClassifyEvent(data.secure_url, data.bytes, data.original_filename, data.format, data.duration);
+
+  //     setTimeout(() => {
+  //       navigate('/history');
+  //     }, 3000);
+
+  //   } catch (error) {
+  //     console.error('Upload failed:', error);
+  //     toast({
+  //       title: "Upload Failed",
+  //       description: "Failed to upload video. Please try again.",
+  //       variant: "destructive"
+  //     });
+  //     setStage('upload');
+  //     setProgress(0);
+  //   }
+  // };
 
   const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setDragActive(false);
-    
+
     const files = Array.from(e.dataTransfer.files);
     if (files.length > 0) {
       handleFileUpload(files[0]);
@@ -156,11 +202,10 @@ const Prediction = () => {
         {stage === 'upload' && (
           <Card className="max-w-2xl mx-auto p-8 glass-effect border-0 animate-fade-in-up">
             <div
-              className={`border-2 border-dashed rounded-xl p-12 text-center transition-all duration-300 ${
-                dragActive 
-                  ? 'border-primary bg-primary/5' 
-                  : 'border-border hover:border-primary/50 hover:bg-muted/30'
-              }`}
+              className={`border-2 border-dashed rounded-xl p-12 text-center transition-all duration-300 ${dragActive
+                ? 'border-primary bg-primary/5'
+                : 'border-border hover:border-primary/50 hover:bg-muted/30'
+                }`}
               onDrop={handleDrop}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
@@ -170,12 +215,12 @@ const Prediction = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2m-9 1v1a1 1 0 001 1h8a1 1 0 001-1V5m-9 4h10l-1 7H9l-1-7z" />
                 </svg>
               </div>
-              
+
               <h3 className="text-xl font-semibold mb-4">Upload Video for Analysis</h3>
               <p className="text-muted-foreground mb-6">
                 Drag and drop your video here, or click to browse
               </p>
-              
+
               <input
                 type="file"
                 accept="video/*"
@@ -187,13 +232,13 @@ const Prediction = () => {
                 className="hidden"
                 id="video-upload"
               />
-              
-              <Button style={{cursor: "pointer"}} variant="outline">
-                <label style={{cursor: "pointer"}} htmlFor="video-upload">
-                    Choose Video File
+
+              <Button style={{ cursor: "pointer" }} variant="outline">
+                <label style={{ cursor: "pointer" }} htmlFor="video-upload">
+                  Choose Video File
                 </label>
               </Button>
-              
+
               <div className="mt-6 text-sm text-muted-foreground">
                 <p>Supported formats: MP4, WebM, AVI, MOV</p>
                 <p>Maximum file size: 500MB</p>
@@ -209,15 +254,15 @@ const Prediction = () => {
               <div className="w-24 h-24 bg-gradient-neural rounded-full flex items-center justify-center mx-auto mb-6 animate-neural">
                 <div className="w-8 h-8 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
               </div>
-              
+
               <h3 className="text-2xl font-semibold mb-4">Uploading Video...</h3>
               <p className="text-muted-foreground mb-8">
                 Uploading your video to the cloud for analysis
               </p>
-              
+
               <Progress value={progress} className="mb-4" />
               <p className="text-sm text-muted-foreground">{Math.round(progress)}% Complete</p>
-              
+
               <div className="mt-8 grid grid-cols-2 gap-4 text-sm">
                 <div className="text-center">
                   <div className="text-lg font-semibold text-primary">Secure</div>
@@ -241,18 +286,18 @@ const Prediction = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
-              
+
               <h3 className="text-2xl font-semibold mb-4">Upload Successful!</h3>
               <p className="text-muted-foreground mb-6">
                 Your video has been uploaded successfully. You will be redirected to the history page where you can track the prediction progress.
               </p>
-              
+
               {uploadedUrl && (
                 <div className="mb-6 p-4 bg-muted/30 rounded-lg">
                   <p className="text-sm text-muted-foreground mb-2">Video URL:</p>
-                  <a 
-                    href={uploadedUrl} 
-                    target="_blank" 
+                  <a
+                    href={uploadedUrl}
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="text-primary hover:underline text-sm break-all"
                   >
@@ -260,7 +305,7 @@ const Prediction = () => {
                   </a>
                 </div>
               )}
-              
+
               <div className="flex justify-center space-x-4">
                 <Button onClick={() => navigate('/history')} className="primary-gradient hover-lift">
                   Go to History

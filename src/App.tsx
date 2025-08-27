@@ -50,7 +50,7 @@ const App = () => (
               } 
             />
             <Route 
-              path="/prediction/:id" 
+              path="/prediction-result" 
               element={
                 <ProtectedRoute>
                   <PredictionResult />

@@ -6,7 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import axios from 'axios';
-import { sendClassifyEvent } from "@/services/ClassifyService";
+import { addHistoryRecord } from "@/services/HistoryService";
 
 type PredictionStage = 'upload' | 'uploading' | 'uploaded';
 
@@ -25,6 +25,11 @@ const Prediction = () => {
   const { toast } = useToast();
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  const getSize = (file: File) => {
+    const fileSizeInMB = (file.size / (1024 * 1024)).toFixed(2);
+    return `${fileSizeInMB} MB`;
+  }
 
   const predictionApiCall = async (file: File) => {
     const start = new Date();
@@ -66,7 +71,18 @@ const Prediction = () => {
       outputVideoUrl: data.output_url,
       processingTime: data.execution_time
     };
-    // Navigate to the result page, passing prediction data
+    
+    const historyData = {
+      result: data.predicted_class,
+      confidence: data.confidence,
+      start_timestamp: start,
+      filename: file.name,
+      size: getSize(file),
+      end_timestamp: new Date(),
+      output_video_url: data.output_url,
+      processing_time: data.execution_time
+    }
+    await addHistoryRecord(historyData);
     navigate("/prediction-result", { state: { prediction: result } });
   };
 

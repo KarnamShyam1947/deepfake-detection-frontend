@@ -32,7 +32,7 @@ const Register = () => {
       
       toast({
         title: "Account Created Successfully!",
-        description: "Welcome to DeepDetect AI!, Please check your mail for account activation",
+        description: "Welcome to DeepDetect AI!, your account created successfully",
       });
       
       navigate('/');
@@ -40,7 +40,7 @@ const Register = () => {
       
       toast({
         title: "Registration failed",
-        description: error.message,
+        description: error.error,
         variant: "destructive",
       });
     }

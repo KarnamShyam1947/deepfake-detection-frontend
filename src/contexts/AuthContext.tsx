@@ -56,7 +56,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       
       const data = await registerAPICall({name, email, password, phone});
-      console.log(data);
       
       if(data.error){
         throw new Error(data.error)

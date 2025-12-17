@@ -20,6 +20,7 @@ import VerifyExpired from "./pages/VerifyExpired";
 import ForgotPassword from "./pages/ForgotPassword";
 import NotActivated from "./pages/NotActivated";
 import SetPassword from "./pages/SetPassword";
+import VideoPlayer from "./components/VideoPlayer";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +41,7 @@ const App = () => (
             <Route path="/verify/success" element={<VerifySuccess />} />
             <Route path="/verify/expired" element={<VerifyExpired />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/cloudinary-video-player" element={<VideoPlayer />} />
             <Route path="/set-password/:token" element={<SetPassword />} />
             <Route 
               path="/prediction" 

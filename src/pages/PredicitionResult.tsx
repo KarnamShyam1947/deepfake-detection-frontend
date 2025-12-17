@@ -359,7 +359,10 @@ const PredictionResult = () => {
               <Button
                 variant="outline"
                 className="hover-lift"
-                onClick={() => window.open(prediction.outputVideoUrl, '_blank')}
+                onClick={() => {
+                  const outputRoute = `/cloudinary-video-player?url=${encodeURIComponent(prediction.outputVideoUrl)}`;
+                  window.open(outputRoute, '_blank')
+                }}
               >
                 View Analysis Video
               </Button>

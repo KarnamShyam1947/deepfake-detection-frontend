@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useEffect, useState } from "react";
-import { getAllUserHistory } from "@/services/HistoryService";
+import { getAllUserHistory, deleteRecord } from "@/services/HistoryService";
 import { HistoryItem } from "@/types/History";
 
 const History = () => {
@@ -16,12 +16,13 @@ const History = () => {
     const fetchHistory = async () => {
       try {
         const rawData = await getAllUserHistory();
-
+        console.log(rawData);
+        
         if (Array.isArray(rawData)) {
           const parsed = rawData.map((item: any) => ({
             ...item,
-            startDate: new Date(item.startDate),
-            endDate: new Date(item.endDate),
+            startDate: new Date(item.start_timestamp),
+            endDate: new Date(item.end_timestamp),
           }));
           setHistoryData(parsed);
         } else {
@@ -37,26 +38,25 @@ const History = () => {
     fetchHistory();
   }, []);
 
-  
-  const getTimeTaken = (start: Date, end: Date) => {
-    const diffMs = end.getTime() - start.getTime();
-    const minutes = Math.floor(diffMs / 60000);
-    const seconds = Math.floor((diffMs % 60000) / 1000);
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-  };
-
-  const handleDelete = (id: number) => {
+  const handleDelete = async (id: number) => {
     // In a real app, this would delete from the database
     console.log('Delete item:', id);
+    await deleteRecord(id);
+    window.location.reload();
   };
 
   const handleDownload = (url: string, filename: string) => {
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    console.log("Download: ", url);
+    
+    // const link = document.createElement('a');
+    // link.href = url;
+    // link.download = filename;
+    // document.body.appendChild(link);
+    // link.click();
+    // document.body.removeChild(link);
+
+    const outputRoute = `/cloudinary-video-player?url=${encodeURIComponent(url)}`;
+    window.open(outputRoute, '_blank')
   };
 
   return (
@@ -87,21 +87,21 @@ const History = () => {
           
           <Card className="p-6 glass-effect border-0 text-center animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
             <div className="text-2xl font-bold text-success mb-2">
-              {historyData.filter(item => item.result === 'real').length}
+              {historyData.filter(item => item.result === 'REAL').length}
             </div>
             <div className="text-sm text-muted-foreground">Authentic Videos</div>
           </Card>
           
           <Card className="p-6 glass-effect border-0 text-center animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
             <div className="text-2xl font-bold text-destructive mb-2">
-              {historyData.filter(item => item.result === 'fake').length}
+              {historyData.filter(item => item.result === 'FAKE').length}
             </div>
             <div className="text-sm text-muted-foreground">Deepfakes Detected</div>
           </Card>
           
           <Card className="p-6 glass-effect border-0 text-center animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
             <div className="text-2xl font-bold text-accent mb-2">
-              {Math.round(historyData.reduce((sum, item) => sum + item.confidence, 0) / historyData.length)}%
+              {historyData.reduce((sum, item) => sum + parseFloat(item.confidence), 0) / historyData.length}%
             </div>
             <div className="text-sm text-muted-foreground">Avg. Confidence</div>
           </Card>
@@ -138,7 +138,7 @@ const History = () => {
               {historyData.map((item, index) => {
                 const filename = item.filename;
                 const fileSize = item.size;
-                const timeTaken = getTimeTaken(item.startDate, item.endDate);
+                const timeTaken = item.processing_time;
                 
                 return (
                   <div 
@@ -170,19 +170,19 @@ const History = () => {
                       <div className="flex items-center space-x-4">
                         {/* Result Badge */}
                         <Badge 
-                          variant={item.result === 'real' ? 'default' : 'destructive'}
+                          variant={item.result === 'REAL' ? 'default' : 'destructive'}
                           className={`${
-                            item.result === 'real' 
+                            item.result === 'REAL' 
                               ? 'bg-success/10 text-success border-success/20' 
                               : 'bg-destructive/10 text-destructive border-destructive/20'
                           }`}
                         >
-                          {item.result === 'real' ? '✓ AUTHENTIC' : '⚠ DEEPFAKE'}
+                          {item.result === 'REAL' ? '✓ AUTHENTIC' : '⚠ DEEPFAKE'}
                         </Badge>
                         
                         {/* Confidence Score */}
                         <div className="text-center min-w-[80px]">
-                          <div className="font-semibold">{item.confidence}%</div>
+                          <div className="font-semibold">{item.confidence}</div>
                           <div className="text-xs text-muted-foreground">Confidence</div>
                         </div>
                         
@@ -214,7 +214,7 @@ const History = () => {
                                 Download Original
                               </DropdownMenuItem>
                               <DropdownMenuItem 
-                                onClick={() => handleDownload(item.outputVideoUrl, `prediction_${filename}`)}
+                                onClick={() => handleDownload(item.output_video_url, `prediction_${filename}`)}
                                 className="cursor-pointer"
                               >
                                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -303,7 +303,7 @@ const History = () => {
                                  Download Original
                                </DropdownMenuItem>
                                <DropdownMenuItem 
-                                 onClick={() => handleDownload(item.outputVideoUrl, `prediction_${filename}`)}
+                                 onClick={() => handleDownload(item.output_video_url, `prediction_${filename}`)}
                                  className="cursor-pointer"
                                >
                                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

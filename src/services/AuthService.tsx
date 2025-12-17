@@ -1,5 +1,5 @@
 export const loginAPICall = async (requestBody) => {
-    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/v1/auth/login`, {
+    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/login`, {
         method: 'POST',
         body: JSON.stringify(requestBody),
         headers: new Headers({
@@ -11,7 +11,7 @@ export const loginAPICall = async (requestBody) => {
 }
 
 export const registerAPICall = async (requestBody) => {
-    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/v1/auth/register`, {
+    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/register`, {
         method: 'POST',
         body: JSON.stringify(requestBody),
         headers: new Headers({
@@ -23,7 +23,7 @@ export const registerAPICall = async (requestBody) => {
 }
 
 export const forgotPasswordAPICall = async (email: String) => {
-    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/v1/auth/forgot-password`, {
+    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/forgot-password`, {
         method: 'POST',
         body: JSON.stringify({"email": email}),
         headers: new Headers({
@@ -35,7 +35,7 @@ export const forgotPasswordAPICall = async (email: String) => {
 }
 
 export const setPasswordAPICall = async (token: String, password: string) => {
-    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/v1/auth/set-password`, {
+    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/set-password`, {
         method: 'POST',
         body: JSON.stringify({token, password}),
         headers: new Headers({

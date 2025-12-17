@@ -25,25 +25,13 @@ const Login = () => {
       const data: any = await login(formData.email, formData.password);
       console.log(data);
 
-      if (data.error && data.error.includes("not activated")) {
-        localStorage.setItem("tempEmail", formData.email);
-
-        toast({
-          title: "Login failed",
-          description: data.error,
-          variant: "destructive",
-        });
-
-        navigate("/not-activated", { replace: true })
-        return;
-      }
-
       if (data.error) {
         throw new Error();
       }
 
-      setUser(data);
-      localStorage.setItem('user', JSON.stringify(data));
+      setUser(data.user);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      localStorage.setItem('token', data.token);
 
       toast({
         title: "Welcome back!",

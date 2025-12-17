@@ -1,28 +1,62 @@
 version: "3.8"
 
 services:
-  frontend:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        VITE_DEEPFAKE_API_URL: "http://api:5050/api/v1/predict/file"
+  db:
+    image: mysql:latest
+    container_name: mysql-server
+    environment:
+      MYSQL_DATABASE: deepfake_db
+      MYSQL_ROOT_PASSWORD: root
     ports:
-      - "80:80"
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    volumes:
+      - ./mysql_data:/var/lib/mysql
+    networks:
+      - app-network
+
+  backend:
+    image: karnamshyam1947/deepfake-detection-backend:python
+    container_name: deepfake-backend
+    env_file:
+      - .env.backend
+    ports:
+      - "8000:8000"
     depends_on:
-      - api
+      db:
+        condition: service_healthy
     networks:
       - app-network
 
   api:
     image: karnamshyam1947/deepfake-detection-api:flask
     container_name: api
+    env_file:
+      - .env.api
     ports:
       - "5050:5050"
     networks: 
       - app-network
 
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VITE_DEEPFAKE_API_URL: "http://api:5050/api/v1/predict/file"
+        VITE_BASE_API_URL: "http://backend:8000"
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+      - backend
+    networks:
+      - app-network
+
 networks:
   app-network:
     driver: bridge
-

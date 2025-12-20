@@ -47,8 +47,8 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        VITE_DEEPFAKE_API_URL: "http://api:5050/api/v1/predict/file"
-        VITE_BASE_API_URL: "http://backend:8000"
+        VITE_DEEPFAKE_API_URL: "http://localhost:5050/api/v1/predict/file"
+        VITE_BASE_API_URL: "http://localhost:8000"
     ports:
       - "80:80"
     depends_on:
